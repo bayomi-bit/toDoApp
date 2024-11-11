@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseHelper {
   Database? _database;
   static const tableName = "notes";
+  static const tableUsers = "users";
 
   Future get database async {
     if (_database != null) {
@@ -16,11 +17,14 @@ class DatabaseHelper {
 
     return await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-      print("creating database table notes");
-      await db.execute(
-          'CREATE TABLE notes (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, desc TEXT)');
+          await db.execute('CREATE TABLE $tableUsers (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)');
 
-      print("database created successfully");
+          await db.execute(
+          'CREATE TABLE notes (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, desc TEXT, user_id INTEGER)'
+
+              'FOREIGN KEY (user_id) REFERENCES $tableUsers )',
+          );
+
     });
   }
 
@@ -38,4 +42,20 @@ class DatabaseHelper {
     Database db = await database;
     return await db.delete(tableName, where: 'id = ?', whereArgs: [id]);
   }
+  Future getNotesByUserId(int userId) async {
+    Database db = await database;
+    return await db.query(tableName, where: 'user_id = ?', whereArgs: [userId]);
+  }
+
+Future<int> insertUser(Map<String, dynamic> user) async {
+    Database db = await database;
+    return db.insert(tableUsers, user);
+  }
+
+  Future getIdByUserName(String userName) async {
+    Database db = await database;
+    return await db.query(tableUsers, where: 'name = ?', whereArgs: [userName]);
+  }
+
+
 }

@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/sherd_pre.dart';
+import '../../home/ui/home_screen.dart';
+import '../../login/ui/login_screen.dart';
 import '../../start/ui/start_screen.dart';
 
 class Splash extends StatefulWidget {
@@ -15,9 +18,10 @@ class _SplashState extends State<Splash> {
   @override
   initState() {
     super.initState();
+    isLogin();
     Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const StartScreen()));
+          MaterialPageRoute(builder: (context) =>isLogged? const HomeScreen() : const LoginScreen()));
     });
   }
 
@@ -27,4 +31,16 @@ class _SplashState extends State<Splash> {
       body: Center(child: Image.asset("assets/spalsh.png")),
     );
   }
+}
+bool isLogged = false;
+Future isLogin() async{
+
+  bool?  isLogin = await ShardPreHelper.getIsLogin();
+  if(isLogin != null){
+    isLogged = true;
+  }else{
+    isLogged = false;
+
+  }
+
 }

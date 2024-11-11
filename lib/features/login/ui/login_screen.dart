@@ -1,25 +1,29 @@
 import 'package:db/core/const/colors.dart';
 import 'package:db/features/home/ui/home_screen.dart';
+import 'package:db/provider/users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
+import '../../../core/sherd_pre.dart';
 import '../../../core/wideget/custom_btn.dart';
 import '../../../core/wideget/text_form.dart';
+import '../../../provider/sherd_provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
 
-class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController eamilController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController userController = TextEditingController();
+
+    TextEditingController passwordController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final userProvider = Provider.of<UsersProvider>(context);
+
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -57,8 +61,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     children: [
                       TextForm(
-                        controller: eamilController,
-                        lable: "Email",
+                        controller: userController,
+                        lable: "user name",
                       ),
                       const SizedBox(
                         height: 30,
@@ -76,10 +80,15 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               CustomBtn(
                 text: 'Login',
-                onPressed: () {
+                onPressed: () async {
                   if (formKey.currentState!.validate()) {
+                    await ShardPreHelper.setIsLogin(true);
+                    await ShardPreHelper.setName(userController.text);
+                    await userProvider.initUsers(userController.text);
+
                     Navigator.pushReplacement(
                         context,
+
                         MaterialPageRoute(
                             builder: (context) => const HomeScreen()));
                   }
